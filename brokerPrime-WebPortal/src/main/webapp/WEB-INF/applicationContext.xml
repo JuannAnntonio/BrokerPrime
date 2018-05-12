@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util" 
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:jms="http://www.springframework.org/schema/jms" 
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	          http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+	          http://www.springframework.org/schema/aop
+	          http://www.springframework.org/schema/aop/spring-aop-4.3.xsd          
+	          http://www.springframework.org/schema/context          
+	          http://www.springframework.org/schema/context/spring-context-4.3.xsd          
+	          http://www.springframework.org/schema/tx          
+	          http://www.springframework.org/schema/tx/spring-tx-4.3.xsd          
+	          http://www.springframework.org/schema/util          
+	          http://www.springframework.org/schema/util/spring-util-4.3.xsd          
+	          http://www.springframework.org/schema/task          
+	          http://www.springframework.org/schema/task/spring-task-4.3.xsd 
+	          http://www.springframework.org/schema/jee
+              http://www.springframework.org/schema/jee/spring-jee-4.3.xsd">
+
+    <!-- Enable AspectJ style of Spring AOP -->
+    <aop:aspectj-autoproxy/>
+    
+    <!--                                                                      -->
+    <!-- Configuration for encryptor, based on environment variables.         -->
+    <!--                                                                      -->
+    <!-- In this example, the encryption password will be read from an        -->
+    <!-- environment variable called "APP_ENCRYPTION_PASSWORD" which, once    --> 
+    <!-- the application has been started, could be safely unset.             -->
+    <!--                                                                      -->
+    <bean id="environmentVariablesConfiguration" class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+        <property name="algorithm" value="PBEWithMD5AndDES" />
+        <property name="passwordEnvName" value="APP_ENCRYPTION_PASSWORD" />
+    </bean>
+    
+    <!--                                                                      -->
+    <!-- The will be the encryptor used for decrypting configuration values.  -->
+    <!--                                                                      -->
+    <bean id="configurationEncryptor"
+          class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+        <property name="config" ref="environmentVariablesConfiguration" />
+    </bean>
+    <bean class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer">
+        <constructor-arg ref="configurationEncryptor" />
+        <property name="location">
+            <value>classpath:app.properties</value>            
+        </property>
+    </bean>
+    <!--    Custom Scope View-->
+    <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+        <property name="scopes">
+            <map>
+                <entry key="view">
+                    <bean class="mx.sigmact.broker.vista.util.ViewScope"/>
+                </entry>
+            </map>
+        </property>
+    </bean>
+    
+    <!-- Data source para BD -->
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="${jndi.name}" />
+        <property name="cache" value="true" />
+        <property name="resourceRef" value="true" />
+        <property name="lookupOnStartup" value="false" />
+        <property name="proxyInterface" value="javax.sql.DataSource" />
+    </bean>
+    <!-- JDBC Template para DB agace -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+            
+    <!-- Transaction Manager para conexion a BD -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          scope="singleton">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true" />
+            <tx:method name="find*" read-only="true" />
+            <tx:method name="obtener*" read-only="true" />
+            <tx:method name="buscar*" read-only="true" />
+            <tx:method name="set*" read-only="true" />
+            <tx:method name="search*" read-only="true" />
+            <tx:method name="*" rollback-for="java.lang.Throwable"
+                       propagation="REQUIRED" />
+        </tx:attributes>
+    </tx:advice>
+
+    <import resource="classpath*:daos-context.xml"/>
+    <import resource="classpath*:business-context.xml"/>
+   
+    <context:component-scan base-package="mx.sigmact.broker.vista"/>
+    
+    
+</beans>

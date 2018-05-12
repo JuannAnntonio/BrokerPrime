@@ -1,0 +1,83 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-3.2.xsd
+        http://www.springframework.org/schema/jee
+        http://www.springframework.org/schema/jee/spring-jee-3.2.xsd">
+    
+    <tx:annotation-driven/>
+    <context:component-scan base-package="com.xtaticzero.systems.dao"/>
+    
+    <!--                                                                      -->
+    <!-- Configuration for encryptor, based on environment variables.         -->
+    <!--                                                                      -->
+    <!-- In this example, the encryption password will be read from an        -->
+    <!-- environment variable called "APP_ENCRYPTION_PASSWORD" which, once    --> 
+    <!-- the application has been started, could be safely unset.             -->
+    <!--                                                                      -->
+    <bean id="environmentVariablesConfiguration"
+          class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+        <property name="algorithm" value="PBEWithMD5AndDES" />
+        <property name="passwordEnvName" value="APP_ENCRYPTION_PASSWORD" />
+    </bean>
+    
+    <!--                                                                      -->
+    <!-- The will be the encryptor used for decrypting configuration values.  -->
+    <!--                                                                      -->
+    <bean id="configurationEncryptor"
+          class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+        <property name="config" ref="environmentVariablesConfiguration" />
+    </bean>
+
+    
+    <bean class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer">
+        <constructor-arg ref="configurationEncryptor" />
+        <property name="location">
+            <value>classpath:app.properties</value>  
+        </property>
+    </bean>
+    
+    <!-- Data source para BD agace -->
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url"      value="${url.db.test}" />
+        <property name="username" value="${usr.db.test}" />
+        <property name="password" value="${pass.db.test}" />
+    </bean>
+    <!-- JDBC Template para DB agace -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <!-- Transaction Manager para conexion a BD -->
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true" />
+            <tx:method name="find*" read-only="true" />
+            <tx:method name="obtener*" read-only="true" />
+            <tx:method name="buscar*" read-only="true" />
+            <tx:method name="set*" read-only="true" />
+            <tx:method name="search*" read-only="true" />
+            <tx:method name="*" rollback-for="java.lang.Throwable"
+                       propagation="REQUIRED" />
+        </tx:attributes>
+    </tx:advice>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          scope="singleton">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+      
+</beans>
