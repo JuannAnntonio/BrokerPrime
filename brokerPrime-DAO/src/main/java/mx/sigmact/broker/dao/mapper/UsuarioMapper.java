@@ -17,25 +17,18 @@ import org.springframework.jdbc.core.RowMapper;
  */
 public class UsuarioMapper implements RowMapper<User> {
 
-    protected final String DISPLAY_NAME = "USR.display_name";
-    protected final String USR_ID = "USR.user_id";
-    protected final String EMAIL = "USR.email";
-    protected final String FECHA = "USR.fecha";
-    protected final String FECHA_TERMINO = "USR.fechaTermino";
-    protected final String ROL_ID = "USR.rol_id";
-    protected final String ROL = "ROL.descripcion";
-
     @Override
     public User mapRow(ResultSet rs, int i) throws SQLException {
         User usuario = new User();
-//        usuario.setDisplay_name(rs.getString(DISPLAY_NAME));
-//        usuario.setUser_id(new BigInteger(rs.getString(USR_ID)));
-//        usuario.setRol_id(new BigInteger(rs.getString(ROL_ID)));
-//        usuario.setRol(rs.getString(ROL));
-        usuario.setEmail(rs.getString(EMAIL));
-//        usuario.setFecha(rs.getTimestamp(FECHA));
-//        usuario.setFecha(rs.getTimestamp(FECHA_TERMINO));
-
+        
+        usuario.setEmail(rs.getString("email"));
+        usuario.setEnabled(rs.getShort("enabled"));
+        usuario.setFkIdInstitution(rs.getInt("fk_id_institution"));
+        usuario.setIdUser(rs.getInt("id_user"));
+        usuario.setPassword(rs.getString("password"));
+        usuario.setPhoneNumber(rs.getString("phone_number"));
+        usuario.setUsername(rs.getString("username"));
+        
         return usuario;
     }
 

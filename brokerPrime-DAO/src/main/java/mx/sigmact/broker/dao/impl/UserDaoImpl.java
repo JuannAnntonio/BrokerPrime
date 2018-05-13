@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
  * @author Ing. Emmanuel Estrada Gonzalez <emmanuel.estradag.ipn@gmail.com>
  */
 @Repository("userDao")
-public class UserDaoImpl extends BaseJDBCDao<User> implements UserDao, UsuarioSQL {
+public class UserDaoImpl extends BaseJDBCDao<User> implements UserDao {
 
     private static final long serialVersionUID = -6351443720713415227L;
 
@@ -133,18 +133,18 @@ public class UserDaoImpl extends BaseJDBCDao<User> implements UserDao, UsuarioSQ
 
     @Override
     public User passwordValido(User usuario) throws DAOException {
-        if (usuario == null) {
-            return null;
-        }
-
         try {
 
             List<Object> params = new ArrayList<>();
 
+            params.add(usuario.getUsername());
             params.add(usuario.getPassword());
-//            params.add(usuario.getDisplay_name());
 
-            return getJdbcTemplateBase().queryForObject(UsuarioSQL.SQL_LOGGIN, params.toArray(), new UsuarioMapper());
+            logger.info("### Params: " + params.toArray());
+            logger.info("### SQL: " + UsuarioSQL.SQL_LOGGINS);
+            
+            return getJdbcTemplateBase().queryForObject(UsuarioSQL.SQL_LOGGINS, 
+                    params.toArray(), new UsuarioMapper());
 
         } catch (EmptyResultDataAccessException emty) {
             return null;

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import javax.faces.application.FacesMessage;
 
 import javax.faces.context.FacesContext;
@@ -48,29 +49,38 @@ public abstract class AbstractManagedBean implements Serializable {
     public AbstractManagedBean() {
         log = Logger.getLogger(getClass());
     }
-    
-    protected void validateUsuarioValido() throws IOException {
-//        if (getUserProfile() != null) {
-//            usuario = getUserProfile();
-//        } else {
-//            FacesContext.getCurrentInstance().getExternalContext().redirect(
-//                    ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext()).getContextPath()
-//                    + "/error/indexError.jsf");
-//        }
+
+    public void redirect(String pagina){
+        try {
+            FacesContext.getCurrentInstance().getExternalContext().redirect(
+                    FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath()+ "/pages/"+pagina);
+        } catch (IOException ex) {
+            getLogger().error(ex.getMessage());
+            addFatalMessage(FacesMessage.SEVERITY_FATAL.toString(), "Error al redireccionar");
+        }
     }
+                        
 
     public HttpServletRequest getRequest() {
         return (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
     }
 
-   public HttpSession getSession() {
+    public HttpSession getSession() {
         session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
         return session;
     }
-    
+
     public HttpSession getNewSession() {
         return (HttpSession) FacesContext.getCurrentInstance()
                 .getExternalContext().getSession(true);
+    }
+
+    public String getUserName() {
+        return session.getAttribute("username").toString();
+    }
+
+    public String getUserId() {
+        return (String) session.getAttribute("userid");
     }
 
     public void despachaArchivo(byte[] archivo, String contentType, String nombreArchivo, String error) {
@@ -88,12 +98,12 @@ public abstract class AbstractManagedBean implements Serializable {
 
         } catch (IOException e) {
             getLogger().error(e.getMessage());
-            addFatalMessage(FacesMessage.SEVERITY_FATAL.toString(),error);
+            addFatalMessage(FacesMessage.SEVERITY_FATAL.toString(), error);
         }
 
     }
 
-    private void createMessage(String summary, String detail,
+    public void createMessage(String summary, String detail,
             FacesMessage.Severity severity) {
         FacesMessage message = new FacesMessage(severity, summary, detail);
         FacesContext.getCurrentInstance().addMessage(null, message);
@@ -114,8 +124,6 @@ public abstract class AbstractManagedBean implements Serializable {
     public void addWarningMessage(String titulo, String mensaje) {
         createMessage(titulo, mensaje, FacesMessage.SEVERITY_WARN);
     }
-
-   
 
     /**
      * Obtiene un mensaje del archivo de propiedades de una clave enviada.
@@ -172,5 +180,5 @@ public abstract class AbstractManagedBean implements Serializable {
     public void setUser(User user) {
         this.user = user;
     }
-    
+
 }

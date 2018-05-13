@@ -43,19 +43,7 @@ public interface UsuarioSQL {
 
     String SQL_FIND_BY_ALL = SQL_FIND_HEDER.concat("1=1");
 
-    String SQL_LOGGIN = "select \n"
-            + "USR.user_id,\n"
-            + "USR.email,\n"
-            + "USR.display_name,\n"
-            + "USR.fecha,\n"
-            + "USR.fechaTermino,\n"
-            + "USR.rol_id,\n"
-            + "ROL.descripcion\n"
-            + "from USERS USR\n"
-            + "inner join ROL on USR.rol_id = ROL.rol_id\n"
-            + "where \n"
-            + "USR.password = MD5(?)"
-            + "and \n"
-            + "USR.display_name = ?\n";
+    String SQL_LOGGINS = "select * from user where username=?\n"
+            + "and password=?";
 
 }

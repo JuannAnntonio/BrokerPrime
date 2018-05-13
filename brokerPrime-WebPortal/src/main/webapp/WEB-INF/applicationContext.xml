@@ -98,7 +98,7 @@
     <import resource="classpath*:daos-context.xml"/>
     <import resource="classpath*:business-context.xml"/>
    
-    <context:component-scan base-package="mx.sigmact.broker.vista"/>
+    <context:component-scan base-package="mx.sigmact.broker.vista.loggin"/>
     
     
 </beans>

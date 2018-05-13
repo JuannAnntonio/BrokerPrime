@@ -18,8 +18,6 @@
             </script>
         </h:head>
         <h:body>
-
-
             <h:form>
                 <p:growl id="growl" sticky="true" showDetail="true" life="3000" />
                 <h:outputLink value="javascript:void(0)" onclick="PF('dlg').show();" title="login">
@@ -31,19 +29,18 @@
                 <p:dialog header="Login" widgetVar="dlg" resizable="false">
                     <h:panelGrid columns="2" cellpadding="5">
                         <h:outputLabel for="username" value="Username:" />
-                        <p:inputText id="username" value="#{userLoginView.usuario.display_name}" required="true" label="username" />
+                        <p:inputText id="username" value="#{userLoginView.user.username}" required="true" label="username" />
 
                         <h:outputLabel for="password" value="Password:" />
-                        <p:password id="password" value="#{userLoginView.usuario.password}" required="true" label="password" />
+                        <p:password id="password" value="#{userLoginView.user.password}" required="true" label="password" />
 
                         <f:facet name="footer">
-                            <p:commandButton value="Login" update="growl" actionListener="#{userLoginView.login}"
+                            <p:commandButton value="Login" update="growl" action="#{userLoginView.login}"
                                              oncomplete="handleLoginRequest(xhr, status, args)"/>
                         </f:facet>  
                     </h:panelGrid>
                 </p:dialog>
             </h:form>
-
         </h:body>
     </html>
 </f:view>
