@@ -45,6 +45,8 @@ public class UserLoginView extends AbstractManagedBean {
                     loggedIn = true;
                     getSession().setAttribute("username", getUser().getUsername());
                     redirect("inicio.jsf");
+                }else{
+                    addErrorMessage("Usuario o Password incorrectos", "");
                 }
             } catch (BusinessException ex) {
                 getLogger().error(ex.getMessage(), ex);
@@ -52,7 +54,7 @@ public class UserLoginView extends AbstractManagedBean {
             }
         } else {
             loggedIn = false;
-            addErrorMessage("Usuario o Password incorrectos", "");
+            addErrorMessage("Proporcione usuario y contraseña", "");
         }
         PrimeFaces.current().ajax().addCallbackParam("loggedIn", loggedIn);
     }
